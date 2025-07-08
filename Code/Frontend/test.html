@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <script src="https://cesium.com/downloads/cesiumjs/releases/1.126/Build/Cesium/Cesium.js"></script>
+        <link href="/Frontend/style.css" rel="stylesheet" />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
+            body {
+                font-family: "Nunito Sans", sans-serif;
+                margin: 0px;
+                background-color: #f0f0f0;
+                overflow: hidden;
+            }
+            #intro-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: #000;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                opacity: 1;
+                transition: opacity 0.5s ease-in-out;
+            }
+            #intro-title {
+                font-size: 3.5em;
+                margin-bottom: 20px;
+                text-align: center;
+                opacity: 0;
+                transform: translateY(20px);
+                animation: fadeInUp 0.8s forwards 0.2s;
+            }
+
+            #intro-subtitle {
+                font-size: 1.5em;
+                margin-bottom: 40px;
+                text-align: center;
+                opacity: 0;
+                transform: translateY(20px);
+                animation: fadeInUp 0.8s forwards 0.6s;
+            }
+
+            .taxi-icon {
+                font-size: 3em;
+                margin-bottom: 20px;
+                opacity: 0;
+                animation: pulseIn 1s forwards;
+            }
+
+            @keyframes fadeInUp {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes pulseIn {
+                0% {
+                    opacity: 0;
+                    transform: scale(0.5);
+                }
+                70% {
+                    opacity: 1;
+                    transform: scale(1.2);
+                }
+                100% {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+            #parent {
+                display: flex;
+                width: 100%;
+                height: 100vh;
+            }
+            .left {
+                flex: 2;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                background-color: #ffffff;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            .right {
+                flex: 4;
+                position: relative;
+            }
+            #cesiumContainer {
+                width: 100%;
+                height: 100%;
+            }
+            #title_of_project {
+                font-size: 2.5em;
+                margin: 0px;
+                padding: 20px;
+                background-color: #000;
+                color: #fff;
+                width: 100%;
+                text-align: center;
+            }
+            h1 {
+                margin-block-start: 0em;
+                margin-block-end: 0em;
+            }
+            input.cesium-geocoder-input.cesium-geocoder-input-wide,
+            input.cesium-geocoder-input,
+            input.cesium-geocoder-input:focus,
+            input.cesium-geocoder-input-wide:focus,
+            input.cesium-geocoder-input:hover,
+            .cesium-viewer-geocoderContainer,
+            .cesium-viewer-geocoderContainer:hover .cesium-geocoder-input,
+            .cesium-viewer-geocoderContainer .cesium-geocoder-input:focus,
+            .cesium-viewer-geocoderContainer .cesium-geocoder-input-wide,
+            input.cesium-geocoder-input.cesium-geocoder-input-wide:hover,
+            div#geoCoderContainer.cesium-viewer-geocoderContainer,
+            div#geoCoderContainer.cesium-viewer-geocoderContainer:hover {
+                width: 370px;
+                height: 50px;
+                border-radius: 10px;
+                font-family: "Nunito Sans", sans-serif;
+                padding: 20px;
+                margin: 20px;
+                color: black;
+                background-color: white;
+                border-color: #000;
+            }
+            .cesium-viewer-geocoderContainer .search-results ul li.active {
+                background-color: #000000;
+                color: #fff;
+                font-weight: bold;
+            }
+
+            .cesium-viewer-geocoderContainer .search-results {
+                position: absolute;
+                background-color: #000000;
+                color: #ffffff;
+                overflow-y: hidden;
+                overflow-x: hidden;
+                opacity: 0.95;
+                width: 370px;
+                max-height: 310px;
+                border-radius: 8px;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+                transition: opacity 0.3s ease;
+                top: 100%;
+                left: 39px;
+            }
+
+            .calendar,
+            .time-picker {
+                width: 90px;
+                height: 45px;
+                padding: 1 15px;
+                border: 1px solid #000;
+                border-radius: 10px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 0px;
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 16px;
+                transition: box-shadow 0.3s ease;
+                box-sizing: border-box;
+                line-height: 50px;
+            }
+            .calendar-container {
+                margin-top: 40px;
+                margin-bottom: 40px;
+                margin-top: 20px;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0px;
+            }
+            .calendar {
+                background-color: #ffffff;
+                color: #000;
+                left: 2px;
+                margin-left: 10px;
+            }
+
+            .time-picker {
+                background-color: #ffffff;
+                color: #000000;
+                margin-right: 10px;
+            }
+
+            .calendar:hover,
+            .time-picker:hover {
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .calendar:focus,
+            .time-picker:focus {
+                outline: none;
+                border-color: #000;
+                box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+            }
+            .ui-datepicker {
+                background-color: #fff;
+                border: 1px solid #000;
+                border-radius: 10px;
+                padding: 10px;
+                font-family: "Nunito Sans", sans-serif;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .ui-datepicker-header {
+                background-color: #000;
+                color: #fff;
+                border-radius: 5px;
+                padding: 5px;
+                margin-bottom: 5px;
+            }
+
+            .ui-datepicker-title {
+                text-align: center;
+                font-weight: bold;
+            }
+
+            .ui-datepicker-prev,
+            .ui-datepicker-next {
+                cursor: pointer;
+                color: #fff;
+            }
+
+            .ui-datepicker-calendar th {
+                color: #000;
+                padding: 5px;
+            }
+
+            .ui-datepicker-calendar td {
+                text-align: center;
+                padding: 2px;
+            }
+            .ui-datepicker-calendar a {
+                display: block;
+                padding: 5px;
+                text-decoration: none;
+                color: #ffffff;
+                border-radius: 5px;
+            }
+            .ui-datepicker-calendar a:hover {
+                background-color: #000;
+                color: #fff;
+            }
+            .ui-datepicker-calendar .ui-state-active {
+                background-color: #000;
+                color: #fff;
+            }
+            .ui-datepicker-header {
+                background-color: #000;
+                color: #fff;
+                border-radius: 5px;
+                padding: 8px;
+                margin-bottom: 5px;
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 30px;
+            }
+            .ui-datepicker-title {
+                text-align: center;
+                font-weight: bold;
+                flex: 1;
+            }
+            .ui-datepicker-prev,
+            .ui-datepicker-next {
+                cursor: pointer;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 30px;
+                height: 30px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-decoration: none;
+                color: #fff;
+                font-size: 18px;
+                text-indent: -9999px;
+                overflow: hidden;
+            }
+            .ui-datepicker-prev {
+                left: 5px;
+            }
+            .ui-datepicker-next {
+                right: 5px;
+            }
+            .ui-datepicker-prev::after {
+                content: "◄";
+                position: absolute;
+                text-indent: 0;
+                left: 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            .ui-datepicker-next::after {
+                content: "►";
+                position: absolute;
+                text-indent: 0;
+                right: 0;
+                width: 100%;
+                text-align: center;
+            }
+            .ui-icon {
+                display: none;
+            }
+            @media (min-width: 768px) {
+                .calendar-container {
+                    flex-direction: row;
+                    justify-content: space-between;
+                }
+
+                .calendar {
+                    flex: 1;
+                    margin-right: 10px;
+                }
+
+                .time-picker {
+                    flex: 1;
+                    margin-left: 10px;
+                }
+            }
+            .cesium-infoBox-description {
+                font-family: "Nunito Sans", sans-serif;
+                font-size: 16px;
+                background-color: black;
+                color: white;
+                border-radius: 10px;
+            }
+            .cesium-infoBox-description th,
+            tr {
+                background-color: black;
+                color: white;
+            }
+            #legend {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                background-color: rgba(0, 0, 0, 0.7);
+                padding: 10px;
+                border-radius: 5px;
+                color: white;
+                font-family: "Nunito Sans", sans-serif;
+                z-index: 999;
+            }
+
+            #legend h3 {
+                margin-top: 0;
+                margin-bottom: 10px;
+            }
+
+            .legend-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 5px;
+            }
+
+            .legend-color {
+                width: 20px;
+                height: 20px;
+                margin-right: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="intro-container">
+            <div class="taxi-icon">🚕</div>
+            <h1 id="intro-title">Cab Demand Prediction</h1>
+            <p id="intro-subtitle">
+                Predict High-Demand Areas & Maximize Earnings
+            </p>
+        </div>
+        <div id="parent" style="display: none">
+            <div class="left">
+                <div><h1 id="title_of_project">Cab Demand Prediction</h1></div>
+                <div
+                    id="geocoderContainer"
+                    class="cesium-viewer-geocoderContainer"
+                ></div>
+                <div class="calendar-container">
+                    <input
+                        type="text"
+                        id="datepicker"
+                        class="calendar"
+                        placeholder="Select Date"
+                    />
+                    <input
+                        type="time"
+                        id="timepicker"
+                        class="time-picker"
+                        placeholder="Select Time"
+                    />
+                </div>
+            </div>
+            <div id="cesiumContainer" class="right"></div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+        <script>
+            // Add this code at the end of your script section, just before the closing script tag
+            // This will handle the date/time selection and update the map
+
+            $(document).ready(function () {
+                // Global viewer variable to access outside initial setup
+                let viewer;
+                let currentDataSource;
+
+                setTimeout(function () {
+                    $("#intro-container").css("opacity", "0");
+                    setTimeout(function () {
+                        $("#intro-container").css("display", "none");
+                        $("#parent").css("display", "flex");
+                        $("#datepicker").datepicker();
+
+                        // Initialize Cesium viewer
+                        Cesium.Ion.defaultAccessToken =
+                            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5NDM0MjhmMi1hYjU3LTQ4ODQtYmMwOS03MjhhMDUyM2JmODQiLCJpZCI6Mjc2NjgzLCJpYXQiOjE3Mzk4MDA2NDJ9.n4Yhbtdq6trE4vfIjnG5NYmbqM7AdB64Tie_NSBbGj4";
+                        viewer = new Cesium.Viewer("cesiumContainer", {
+                            terrain: Cesium.Terrain.fromWorldTerrain(),
+                            geocoder: false,
+                            timeline: false,
+                            animation: false,
+                            baseLayerPicker: false,
+                        });
+
+                        // Fly to New York
+                        viewer.camera.flyTo({
+                            destination: Cesium.Cartesian3.fromDegrees(
+                                -74.006,
+                                40.7128,
+                                5000
+                            ),
+                            orientation: {
+                                heading: Cesium.Math.toRadians(0.0),
+                                pitch: Cesium.Math.toRadians(-90.0),
+                            },
+                        });
+
+                        // Add building data
+                        async function addBuildings() {
+                            const buildingTileset =
+                                await Cesium.createOsmBuildingsAsync();
+                            viewer.scene.primitives.add(buildingTileset);
+                        }
+                        addBuildings();
+
+                        // Initialize geocoder
+                        const geocoderContainer =
+                            document.getElementById("geocoderContainer");
+                        const geocoder = new Cesium.Geocoder({
+                            container: geocoderContainer,
+                            scene: viewer.scene,
+                        });
+                        geocoder.viewModel.searchText = "New York County";
+                        geocoder.viewModel.search();
+
+                        // Set current date and time as default values
+                        const now = new Date();
+                        const formattedDate = now.toISOString().split("T")[0];
+                        const formattedTime =
+                            now.getHours().toString().padStart(2, "0") +
+                            ":" +
+                            now.getMinutes().toString().padStart(2, "0");
+
+                        $("#datepicker").datepicker("setDate", now);
+                        $("#timepicker").val(formattedTime);
+
+                        // Initial load of demand data
+                        fetchAndDisplayDemandData();
+
+                        // Add event listeners for date and time changes
+                        $("#datepicker, #timepicker").on("change", function () {
+                            fetchAndDisplayDemandData();
+                        });
+                    }, 500);
+                }, 4000);
+
+                // Function to fetch demand data and update map
+                function fetchAndDisplayDemandData() {
+                    const selectedDate = $("#datepicker").datepicker("getDate");
+                    if (!selectedDate) return;
+
+                    const formattedDate =
+                        selectedDate.getFullYear() +
+                        "-" +
+                        (selectedDate.getMonth() + 1)
+                            .toString()
+                            .padStart(2, "0") +
+                        "-" +
+                        selectedDate.getDate().toString().padStart(2, "0");
+
+                    const selectedTime = $("#timepicker").val() || "12:00";
+
+                    // Show loading indicator (you might want to add a spinner to your HTML)
+                    console.log(
+                        "Loading data for",
+                        formattedDate,
+                        selectedTime
+                    );
+
+                    // API endpoint URL
+                    const apiUrl = `/api/demand-heatmap?date=${formattedDate}&time=${selectedTime}`;
+
+                    // Fetch the demand data
+                    fetch(apiUrl)
+                        .then((response) => {
+                            if (!response.ok) {
+                                throw new Error(
+                                    `HTTP error! Status: ${response.status}`
+                                );
+                            }
+                            return response.json();
+                        })
+                        .then((data) => {
+                            displayDemandHeatmap(data);
+                        })
+                        .catch((error) => {
+                            console.error("Error fetching demand data:", error);
+                            alert(
+                                "Failed to fetch demand data. Please try again."
+                            );
+                        });
+                }
+
+                // Function to display demand heatmap on the map
+                function displayDemandHeatmap(geojsonData) {
+                    // Remove existing data source if any
+                    if (currentDataSource && viewer) {
+                        viewer.dataSources.remove(currentDataSource);
+                    }
+
+                    // Create a new GeoJSON data source
+                    currentDataSource = new Cesium.GeoJsonDataSource();
+
+                    // Load the GeoJSON data
+                    currentDataSource
+                        .load(geojsonData, {
+                            stroke: Cesium.Color.BLACK,
+                            strokeWidth: 2,
+                            fill: function (feature) {
+                                // Get demand level from properties
+                                const demandLevel =
+                                    feature.properties.demand_level;
+                                const predictedCount =
+                                    feature.properties.predicted_pickup_count ||
+                                    0;
+
+                                // Color based on demand level
+                                let color;
+                                switch (demandLevel) {
+                                    case "very high":
+                                        color = Cesium.Color.RED.withAlpha(0.7);
+                                        break;
+                                    case "high":
+                                        color =
+                                            Cesium.Color.ORANGE.withAlpha(0.7);
+                                        break;
+                                    case "medium":
+                                        color =
+                                            Cesium.Color.YELLOW.withAlpha(0.7);
+                                        break;
+                                    case "low":
+                                        color =
+                                            Cesium.Color.GREEN.withAlpha(0.5);
+                                        break;
+                                    default:
+                                        color =
+                                            Cesium.Color.GRAY.withAlpha(0.3);
+                                }
+
+                                return color;
+                            },
+                        })
+                        .then(function (dataSource) {
+                            // Add the data source to the viewer
+                            viewer.dataSources.add(dataSource);
+
+                            // Set up popup information
+                            dataSource.entities.values.forEach((entity) => {
+                                if (entity.properties) {
+                                    const zone = entity.properties.zone;
+                                    const borough = entity.properties.borough;
+                                    const predictedCount =
+                                        entity.properties
+                                            .predicted_pickup_count;
+                                    const demandLevel =
+                                        entity.properties.demand_level;
+
+                                    // Create description with HTML
+                                    entity.description =
+                                        new Cesium.CallbackProperty(
+                                            function () {
+                                                return `
+                            <h3>${zone}</h3>
+                            <table>
+                                <tr><th>Borough</th><td>${borough}</td></tr>
+                                <tr><th>Predicted Pickups</th><td>${predictedCount.toFixed(
+                                    2
+                                )}</td></tr>
+                                <tr><th>Demand Level</th><td>${demandLevel.toUpperCase()}</td></tr>
+                            </table>
+                        `;
+                                            },
+                                            false
+                                        );
+                                }
+                            });
+
+                            // Add legend
+                            addLegend();
+                        });
+                }
+
+                // Function to add legend to the map
+                function addLegend() {
+                    // Create legend container if it doesn't exist
+                    if (!document.getElementById("legend")) {
+                        const legendContainer = document.createElement("div");
+                        legendContainer.id = "legend";
+                        legendContainer.style.position = "absolute";
+                        legendContainer.style.bottom = "20px";
+                        legendContainer.style.right = "20px";
+                        legendContainer.style.backgroundColor =
+                            "rgba(0, 0, 0, 0.7)";
+                        legendContainer.style.padding = "10px";
+                        legendContainer.style.borderRadius = "5px";
+                        legendContainer.style.color = "white";
+                        legendContainer.style.fontFamily =
+                            '"Nunito Sans", sans-serif';
+                        legendContainer.style.zIndex = "999";
+
+                        legendContainer.innerHTML = `
+                <h3 style="margin-top: 0; margin-bottom: 10px;">Demand Levels</h3>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 20px; height: 20px; background-color: rgba(255, 0, 0, 0.7); margin-right: 10px;"></div>
+                    <span>Very High</span>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 20px; height: 20px; background-color: rgba(255, 165, 0, 0.7); margin-right: 10px;"></div>
+                    <span>High</span>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 20px; height: 20px; background-color: rgba(255, 255, 0, 0.7); margin-right: 10px;"></div>
+                    <span>Medium</span>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="width: 20px; height: 20px; background-color: rgba(0, 128, 0, 0.5); margin-right: 10px;"></div>
+                    <span>Low</span>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 20px; height: 20px; background-color: rgba(128, 128, 128, 0.3); margin-right: 10px;"></div>
+                    <span>Unknown</span>
+                </div>
+            `;
+
+                        document
+                            .getElementById("cesiumContainer")
+                            .appendChild(legendContainer);
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

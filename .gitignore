@@ -1,0 +1,32 @@
+# Exclude everything by default
+Code/Backend/*
+Code/Frontend/*
+
+# Re-include required files
+!Code/Backend/*.py
+!Code/Frontend/*.py
+!Code/Frontend/*.html
+!Code/Frontend/*.css
+!Code/Frontend/*.js
+
+# Exclude datasets and processed data
+Code/Dataset/
+Code/Backend/models_ml/
+Code/Backend/processed_data_ml/
+Code/Frontend/*.parquet
+Code/Frontend/*.csv
+*.parquet
+*.csv
+*.joblib
+
+# Exclude documentation and office files
+Documentation/
+*.docx
+*.pdf
+*.pptx
+
+# VSCode and Python artifacts
+.vscode/
+__pycache__/
+*.pyc
+.DS_Store

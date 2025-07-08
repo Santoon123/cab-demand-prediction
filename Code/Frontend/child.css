@@ -1,0 +1,108 @@
+.calendar-container {
+    margin-top: 20px;
+    width: 100%;
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack items vertically by default */
+    align-items: center; /* Center items horizontally */
+}
+
+.calendar,
+.time-picker {
+    width: 100%; /* Full width */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.calendar {
+    background-color: #f9f9f9;
+}
+
+.time-picker {
+    background-color: #fff; /* White background for time picker */
+}
+
+@media (min-width: 768px) {
+    .calendar-container {
+        flex-direction: row; /* Change to row layout on larger screens */
+        justify-content: space-between; /* Space between left and right sections */
+    }
+
+    .calendar {
+        flex: 1; /* Allow calendar to grow */
+        margin-right: 10px; /* Space between calendar and time picker */
+    }
+
+    .time-picker {
+        flex: 1; /* Allow time picker to grow */
+        margin-left: 10px; /* Space between time picker and calendar */
+    }
+}
+
+/* Optional: Add hover effects for better UX */
+.calendar:hover,
+.time-picker:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Increase shadow on hover */
+    transition: box-shadow 0.3s ease; /* Smooth transition */
+}
+@media (min-width: 768px) {
+    #parent {
+        flex-direction: row;
+    }
+    .left {
+        width: auto;
+    }
+    .right {
+        width: auto;
+    }
+}
+.cesium-viewer-geocoderContainer {
+    position: fixed;
+    width: 100%;
+}
+.cesium-viewer-geocoderContainer .search-results ul {
+    list-style-type: none; /* Remove default list style */
+    margin: 0;
+    padding: 0;
+}
+
+.cesium-viewer-geocoderContainer .search-results ul li {
+    font-size: 16px; /* Slightly larger font for better readability */
+    padding: 12px 20px; /* Increased padding for a more spacious feel */
+    border-bottom: 1px solid #ffffff;
+    background-color: #ffffff;
+    transition: background-color 0.3s, transform 0.2s; /* Add transform transition */
+}
+
+.cesium-viewer-geocoderContainer .search-results ul li:hover {
+    cursor: pointer;
+    background-color: #ffffff;
+    transform: scale(1.02);
+}
+
+.cesium-viewer-geocoderContainer .search-results ul li.active {
+    background-color: #000000; /* Active item background */
+    color: #fff; /* Active item text color */
+    font-weight: bold; /* Make active item bold */
+}
+
+.cesium-viewer-geocoderContainer .search-results ul li:last-child {
+    border-bottom: none; /* Remove border from the last item */
+}
+/* Add to your CSS file */
+.secondary-button {
+    background-color: #6c757d; /* Example: grey background */
+    /* Or maybe just an outline */
+    /* background-color: transparent; */
+    /* border: 1px solid #ccc; */
+    /* color: #555; */
+}
+
+.secondary-button:hover {
+    background-color: #5a6268; /* Darker grey on hover */
+     /* Or adjust outline hover */
+    /* border-color: #aaa; */
+    /* background-color: #f0f0f0; */
+}
